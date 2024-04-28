@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.*
@@ -41,6 +42,7 @@ fun DetailScreen(navController: NavController,name:String,image:Int,details: Str
                     .background(color = brown)
                     .padding(top = 40.dp)
                     .height(IntrinsicSize.Max)
+                    .verticalScroll(scrollState)
             ) {
                 SmallTopAppBar(
                     title = {
@@ -111,6 +113,7 @@ fun DetailScreen(navController: NavController,name:String,image:Int,details: Str
                             navController.navigate(Screen.EnquiryScreen.route)
                         }
                     )
+                    Spacer(modifier = Modifier.height(30.dp))
 
 
                 }

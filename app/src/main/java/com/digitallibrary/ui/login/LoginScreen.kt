@@ -35,6 +35,7 @@ import com.digitallibrary.ui.theme.*
 import com.digitallibrary.utils.LibraryBorderField
 import com.digitallibrary.utils.RoundedButton
 import com.digitallibrary.utils.isValidEmail
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -47,7 +48,7 @@ fun LoginScreen(navController: NavController) {
     var isLibraryLogin by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    val db = Firebase.firestore
+    val firebaseAuth = FirebaseAuth.getInstance()
     DigitalLibraryAppTheme {
         Scaffold {
             Column(
@@ -110,70 +111,29 @@ fun LoginScreen(navController: NavController) {
                                     if (!isValidEmail(email.toString())) {
                                         if (password.isNotEmpty()) {
                                             isLibraryLogin = true
-                                            db.collection("users")
-                                                .get()
-                                                .addOnSuccessListener { result ->
-                                                    if (result.isEmpty) {
-
+                                            firebaseAuth.signInWithEmailAndPassword(email.lowercase(), password)
+                                                .addOnCompleteListener { task ->
+                                                    if (task.isSuccessful) {
+                                                        preference.saveData(
+                                                            "isLogin", true
+                                                        )
                                                         Toast.makeText(
-                                                            context,
-                                                            "Invalid user.",
-                                                            Toast.LENGTH_LONG
+                                                            context, "Login successfully.", Toast.LENGTH_SHORT
                                                         ).show()
-                                                        isLibraryLogin = false
-                                                        return@addOnSuccessListener
-                                                    } else {
-                                                        for (document in result) {
-                                                            if (document.data["email"] == email.lowercase() &&
-                                                                document.data["password"] == password
-                                                            ) {
-                                                                preference.saveData(
-                                                                    "isLogin",
-                                                                    true
-                                                                )
-                                                                Toast.makeText(
-                                                                    context,
-                                                                    "Login successfully.",
-                                                                    Toast.LENGTH_LONG
-                                                                ).show()
-                                                                navController.navigate(
-                                                                    Screen.MainScreen.route
-                                                                ) {
-                                                                    popUpTo(Screen.LoginScreen.route) {
-                                                                        inclusive = true
-                                                                    }
-                                                                }
-                                                                isLibraryLogin = false
-                                                            } else if (document.data["email"] == email.lowercase() &&
-                                                                document.data["password"] != password
-                                                            ) {
-                                                                Toast.makeText(
-                                                                    context,
-                                                                    "Invalid password.",
-                                                                    Toast.LENGTH_LONG
-                                                                ).show()
-                                                                isLibraryLogin = false
-                                                                return@addOnSuccessListener
-                                                            } else {
-                                                                Toast.makeText(
-                                                                    context,
-                                                                    "Invalid user.",
-                                                                    Toast.LENGTH_LONG
-                                                                ).show()
-                                                                isLibraryLogin = false
-                                                                return@addOnSuccessListener
+                                                        navController.navigate(
+                                                            Screen.MainScreen.route
+                                                        ) {
+                                                            popUpTo(Screen.LoginScreen.route) {
+                                                                inclusive = true
                                                             }
                                                         }
+                                                        isLibraryLogin = false
+                                                    } else {
+                                                        Toast.makeText(
+                                                            context, task.exception?.message.toString(), Toast.LENGTH_SHORT
+                                                        ).show()
+                                                        isLibraryLogin = false
                                                     }
-
-                                                }
-                                                .addOnFailureListener { exception ->
-                                                    Toast.makeText(
-                                                        context,
-                                                        exception.message.toString(),
-                                                        Toast.LENGTH_LONG
-                                                    ).show()
-                                                    isLibraryLogin = false
                                                 }
                                         } else {
                                             Toast.makeText(

@@ -34,6 +34,7 @@ import com.digitallibrary.ui.theme.*
 import com.digitallibrary.utils.LibraryBorderField
 import com.digitallibrary.utils.RoundedButton
 import com.digitallibrary.utils.isValidEmail
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -46,7 +47,7 @@ fun RegisterScreen(navController: NavController) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    val db = Firebase.firestore
+    val firebaseAuth = FirebaseAuth.getInstance()
     val scrollState = rememberScrollState()
     var isLibraryLogin by remember { mutableStateOf(false) }
     DigitalLibraryAppTheme {
@@ -120,98 +121,36 @@ fun RegisterScreen(navController: NavController) {
                                         if (!isValidEmail(email)) {
                                             if (password.isNotEmpty()) {
                                                 isLibraryLogin = true
-                                                val user = hashMapOf(
-                                                    "name" to name,
-                                                    "email" to email.lowercase(),
-                                                    "password" to password
+                                                firebaseAuth.createUserWithEmailAndPassword(
+                                                    email.lowercase(),
+                                                    password
                                                 )
-                                                db.collection("users")
-                                                    .get()
-                                                    .addOnSuccessListener { result ->
-                                                        if (result.isEmpty) {
-                                                            db.collection("users")
-                                                                .add(user)
-                                                                .addOnSuccessListener { documentReference ->
-                                                                    preference.saveData(
-                                                                        "isLogin",
-                                                                        true
-                                                                    )
-                                                                    Toast.makeText(
-                                                                        context,
-                                                                        "Register successfully.",
-                                                                        Toast.LENGTH_SHORT
-                                                                    ).show()
-                                                                    navController.navigate(
-                                                                        Screen.MainScreen.route
-                                                                    ) {
-                                                                        popUpTo(Screen.LoginScreen.route) {
-                                                                            inclusive = true
-                                                                        }
-                                                                    }
-                                                                    isLibraryLogin = false
-                                                                }
-                                                                .addOnFailureListener { e ->
-
-                                                                    Toast.makeText(
-                                                                        context,
-                                                                        e.message.toString(),
-                                                                        Toast.LENGTH_SHORT
-                                                                    ).show()
-                                                                    isLibraryLogin = false
-                                                                }
-                                                        } else {
-                                                            for (document in result) {
-                                                                if (document.data["email"] == email.lowercase() &&
-                                                                    document.data["password"] == password
-                                                                ) {
-                                                                    Toast.makeText(
-                                                                        context,
-                                                                        "Already exists.",
-                                                                        Toast.LENGTH_SHORT
-                                                                    ).show()
-                                                                    isLibraryLogin = false
-                                                                    return@addOnSuccessListener
-                                                                } else {
-                                                                    db.collection("users")
-                                                                        .add(user)
-                                                                        .addOnSuccessListener { documentReference ->
-                                                                            preference.saveData(
-                                                                                "isLogin",
-                                                                                true
-                                                                            )
-                                                                            Toast.makeText(
-                                                                                context,
-                                                                                "Register successfully.",
-                                                                                Toast.LENGTH_SHORT
-                                                                            ).show()
-                                                                            navController.navigate(
-                                                                                Screen.MainScreen.route
-                                                                            ) {
-                                                                                popUpTo(Screen.RegisterScreen.route) {
-                                                                                    inclusive = true
-                                                                                }
-                                                                            }
-                                                                            isLibraryLogin = false
-                                                                        }
-                                                                        .addOnFailureListener { e ->
-                                                                            Toast.makeText(
-                                                                                context,
-                                                                                e.message.toString(),
-                                                                                Toast.LENGTH_SHORT
-                                                                            ).show()
-                                                                            isLibraryLogin = false
-                                                                        }
+                                                    .addOnCompleteListener { task ->
+                                                        if (task.isSuccessful) {
+                                                            preference.saveData(
+                                                                "isLogin", true
+                                                            )
+                                                            Toast.makeText(
+                                                                context,
+                                                                "Register successfully.",
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
+                                                            navController.navigate(
+                                                                Screen.MainScreen.route
+                                                            ) {
+                                                                popUpTo(Screen.RegisterScreen.route) {
+                                                                    inclusive = true
                                                                 }
                                                             }
+                                                            isLibraryLogin = false
+                                                        } else {
+                                                            Toast.makeText(
+                                                                context,
+                                                                task.exception?.message.toString(),
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
+                                                            isLibraryLogin = false
                                                         }
-                                                    }
-                                                    .addOnFailureListener { exception ->
-                                                        Toast.makeText(
-                                                            context,
-                                                            exception.message.toString(),
-                                                            Toast.LENGTH_SHORT
-                                                        ).show()
-                                                        isLibraryLogin = false
                                                     }
                                             } else {
                                                 Toast.makeText(

@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "1008567807141",
-    "project_id": "digital-library-app-81404",
-    "storage_bucket": "digital-library-app-81404.appspot.com"
+    "project_number": "879181721495",
+    "project_id": "digital-library-app-3e83e",
+    "storage_bucket": "digital-library-app-3e83e.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1008567807141:android:fa84c61d41178b9b9b714c",
+        "mobilesdk_app_id": "1:879181721495:android:6ec984c69f33912f2e9ed2",
         "android_client_info": {
           "package_name": "com.digitallibrary"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDTqmgRk5nisNnuzKuSuCVnsvD2nyIv0g8"
+          "current_key": "AIzaSyClEx66KNodB-6GQnnYWLU1lTxw3h3jXhU"
         }
       ],
       "services": {
